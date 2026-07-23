@@ -50,7 +50,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 
   <main id="main">
     <section class="logo-section" id="home">
-      <span class="eyebrow light logo-eyebrow">Every problem has a solution —</span>
+      <span class="eyebrow light logo-eyebrow">Every problem has a solution</span>
       <div class="logo-stage">
         <div class="logo-fx" data-logo-fx>
           <svg class="electric-defs" aria-hidden="true" focusable="false">
@@ -166,7 +166,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <div class="gear-seq gear-story" aria-hidden="true"><img data-gear-seq src="/assets/gear3/0001.png" width="512" height="512" alt="" draggable="false" /></div>
       <div class="story-visual reveal">
         <div class="lab-window">
-          <span class="lab-light"></span>
           <img
             class="lab-photo"
             src="/assets/lab.jpg"
@@ -177,9 +176,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
             decoding="async"
             draggable="false"
           />
-        </div>
-        <div class="lizard" tabindex="0" role="button" aria-label="A tiny hidden lizard. Click to find out more.">
-          <span>🦎</span><small>psst!</small>
         </div>
       </div>
       <div class="story-copy reveal">
@@ -275,12 +271,30 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
       <div class="media-grid">
         <button class="feature-media teaser-card reveal" data-modal="teaser">
-          <div class="media-placeholder"><span>TEASER VIDEO STILL</span><small>Wide team shot outside Widgeteer HQ</small></div>
+          <img
+            class="media-cover"
+            src="/assets/videos/cover_image_pilot_episode.jpg"
+            alt=""
+            width="1280"
+            height="720"
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+          />
           <span class="round-play">${icon('play')}</span>
-          <span class="media-meta"><small>Official teaser</small><strong>A strange signal in the city</strong></span>
+          <span class="media-meta"><small>Pilot episode</small><strong>The Golden Express</strong></span>
         </button>
         <button class="feature-media song-card reveal" data-modal="theme">
-          <div class="sound-wave" aria-hidden="true">${Array(22).fill('<i></i>').join('')}</div>
+          <img
+            class="media-cover"
+            src="/assets/videos/cover_image_theme.jpg"
+            alt=""
+            width="800"
+            height="800"
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+          />
           <span class="round-play copper">${icon('music')}</span>
           <span class="media-meta"><small>Opening theme</small><strong>Feel the action now!</strong></span>
         </button>
@@ -384,10 +398,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <p>Bring a little Widgeteer spirit home. Field-tested for playtime, school days, and secret missions.</p>
         <button class="button dark" data-toast="The Widgeteers shop is opening soon!">Visit the shop ${icon('arrow')}</button>
       </div>
-      <div class="products">
-        <article class="product-card tilt-left reveal"><div class="product-art shirt"><span>T-SHIRT<br>PRODUCT RENDER</span></div><h3>Team Widgeteer Tee</h3><p>Kids apparel</p><button aria-label="View Team Widgeteer Tee" data-toast="This item will be available soon">${icon('bag')}</button></article>
-        <article class="product-card tilt-right reveal"><div class="product-art toy"><span>PiPi PLUSH<br>PRODUCT RENDER</span></div><h3>PiPi Adventure Plush</h3><p>Soft toys</p><button aria-label="View PiPi Adventure Plush" data-toast="This item will be available soon">${icon('bag')}</button></article>
-        <article class="product-card tilt-left reveal"><div class="product-art kit"><span>GADGET KIT<br>PRODUCT RENDER</span></div><h3>Junior Inventor Kit</h3><p>Activity sets</p><button aria-label="View Junior Inventor Kit" data-toast="This item will be available soon">${icon('bag')}</button></article>
+      <div class="shop-rack reveal" data-shop-rack>
+        <button class="shop-nav shop-prev" type="button" aria-label="Previous products">${icon('arrow')}</button>
+        <div class="shop-viewport">
+          <div class="shop-track" data-shop-track></div>
+        </div>
+        <button class="shop-nav shop-next" type="button" aria-label="Next products">${icon('arrow')}</button>
       </div>
     </section>
 
@@ -434,7 +450,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <strong>TEASER VIDEO</strong>
       <small>Replace this frame with your finished teaser</small>
     </div>
-    <h2>A strange signal in the city</h2>
+    <h2>The Golden Express</h2>
   </dialog>
   <dialog class="video-modal theme-modal">
     <button class="modal-close" aria-label="Close opening theme">${icon('close')}</button>
@@ -577,7 +593,6 @@ const showToast = (message: string) => {
 document.querySelectorAll<HTMLElement>('[data-toast]').forEach((button) =>
   button.addEventListener('click', () => showToast(button.dataset.toast!)),
 )
-document.querySelector('.lizard')?.addEventListener('click', () => showToast('You found the little lizard! 🦎'))
 
 const villainFiles: Record<'muffin' | 'churro', { src: string; alt: string }> = {
   muffin: {
@@ -663,7 +678,7 @@ const updateScroll = () => {
     // Finish the wipe before sticky unpins so the line can reach the top of the image.
     const scrollRange = Math.max(suitSection.offsetHeight - window.innerHeight, 1)
     const scrolledInto = window.scrollY - suitSection.offsetTop
-    const wipeRange = scrollRange * 0.82
+    const wipeRange = scrollRange * 0.94
     const progress = Math.min(1, Math.max(0, scrolledInto / wipeRange))
     const transforming = progress > 0.01
 
@@ -747,9 +762,23 @@ const placeLogoFx = () => {
 
   const eyebrow = document.querySelector<HTMLElement>('.logo-eyebrow')
   const tagline = document.querySelector<HTMLElement>('.logo-tagline')
-  if (eyebrow && tagline) {
-    const gap = Math.round(logo.getBoundingClientRect().top - eyebrow.getBoundingClientRect().bottom)
-    tagline.style.marginTop = `${Math.max(32, gap)}px`
+  const logoSection = document.querySelector<HTMLElement>('.logo-section')
+  const header = document.querySelector<HTMLElement>('.site-header')
+  if (eyebrow && tagline && logoSection) {
+    const logoRect = logo.getBoundingClientRect()
+    const mobile = window.matchMedia('(max-width: 780px)').matches
+    if (mobile && header) {
+      const sectionTop = logoSection.getBoundingClientRect().top
+      const headerBottom = header.getBoundingClientRect().bottom
+      const space = logoRect.top - headerBottom
+      const eyebrowHeight = eyebrow.offsetHeight || 24
+      const topInSection = headerBottom - sectionTop + Math.max(10, (space - eyebrowHeight) / 2)
+      eyebrow.style.top = `${Math.round(topInSection)}px`
+    } else {
+      eyebrow.style.top = ''
+    }
+    const gap = Math.round(logoRect.top - eyebrow.getBoundingClientRect().bottom)
+    tagline.style.marginTop = `${Math.max(24, gap)}px`
   }
 }
 
@@ -953,10 +982,15 @@ const renderRideCards = () => {
     .join('')
 }
 
+const isMobileRides = () => window.matchMedia('(max-width: 780px)').matches
+
 const syncRideCarousel = () => {
   if (!rideTrack || !rideDots) return
   const total = rides.length
-  const visibleSpan = 2
+  const mobile = isMobileRides()
+  const visibleSpan = mobile ? 0 : 2
+  const tiltStep = mobile ? 0 : 10
+  const liftStep = mobile ? 0 : 16
   rideTrack.querySelectorAll<HTMLElement>('.ride-card').forEach((card, index) => {
     let offset = index - rideIndex
     offset = ((offset % total) + total) % total
@@ -965,11 +999,11 @@ const syncRideCarousel = () => {
     const abs = Math.abs(offset)
     const visible = abs <= visibleSpan
     card.style.setProperty('--ride-offset', visible ? `${offset}` : '0')
-    card.style.setProperty('--ride-tilt', visible ? `${offset * 10}` : '0')
-    card.style.setProperty('--ride-lift', visible ? `${abs * 16}` : '0')
+    card.style.setProperty('--ride-tilt', visible ? `${offset * tiltStep}` : '0')
+    card.style.setProperty('--ride-lift', visible ? `${abs * liftStep}` : '0')
     card.classList.toggle('is-active', abs === 0)
     card.classList.toggle('is-near', abs === 1)
-    card.classList.toggle('is-mid', abs === 2)
+    card.classList.toggle('is-mid', abs === 2 && !mobile)
     card.classList.toggle('is-far', !visible)
     card.setAttribute('aria-hidden', visible ? 'false' : 'true')
     card.tabIndex = abs === 0 ? 0 : -1
@@ -1017,6 +1051,7 @@ const openRideModal = (ride: Ride) => {
 if (rideTrack && rideDots) {
   renderRideCards()
   syncRideCarousel()
+  window.matchMedia('(max-width: 780px)').addEventListener('change', syncRideCarousel)
 
   const stepRide = (delta: number) => {
     rideIndex = (rideIndex + delta + rides.length) % rides.length
@@ -1069,3 +1104,112 @@ rideModal?.addEventListener('click', (event) => {
   if (event.target === rideModal) rideModal.close()
 })
 
+type ShopProduct = {
+  name: string
+  category: string
+  image: string
+}
+
+const shopProducts: ShopProduct[] = [
+  {
+    name: 'Team Widgeteer Tee',
+    category: 'Kids apparel',
+    image: '/assets/shop/shop_t-shirt.jpg',
+  },
+  {
+    name: 'PiPi Adventure Plush',
+    category: 'Soft toys',
+    image: '/assets/shop/shop_fluffy_toy.jpg',
+  },
+  {
+    name: 'Turbo Scooter Toy',
+    category: 'Ride-ons',
+    image: '/assets/shop/shop_scooter.png',
+  },
+  {
+    name: 'Widgeteer Buddy Figure',
+    category: 'Collectibles',
+    image: '/assets/shop/shop_toy2.jpg',
+  },
+]
+
+const shopTrack = document.querySelector<HTMLElement>('[data-shop-track]')
+const shopPrev = document.querySelector<HTMLButtonElement>('.shop-prev')
+const shopNext = document.querySelector<HTMLButtonElement>('.shop-next')
+let shopIndex = 0
+
+const shopVisibleCount = () => (window.matchMedia('(max-width: 780px)').matches ? 1 : 3)
+const shopMaxIndex = () => Math.max(0, shopProducts.length - shopVisibleCount())
+
+const renderShopCards = () => {
+  if (!shopTrack) return
+  shopTrack.innerHTML = shopProducts
+    .map(
+      (product, index) => `
+    <article class="product-card ${index % 2 === 0 ? 'is-tilt-a' : 'is-tilt-b'}">
+      <div class="product-art">
+        <img src="${product.image}" alt="" width="600" height="700" loading="lazy" decoding="async" draggable="false" />
+      </div>
+      <h3>${product.name}</h3>
+      <p>${product.category}</p>
+      <button type="button" aria-label="View ${product.name}" data-toast="This item will be available soon">${icon('bag')}</button>
+    </article>`,
+    )
+    .join('')
+
+  shopTrack.querySelectorAll<HTMLElement>('[data-toast]').forEach((button) => {
+    button.addEventListener('click', () => showToast(button.dataset.toast!))
+  })
+}
+
+const syncShopCarousel = () => {
+  if (!shopTrack) return
+  const max = shopMaxIndex()
+  shopIndex = Math.min(shopIndex, max)
+  const card = shopTrack.querySelector<HTMLElement>('.product-card')
+  const styles = getComputedStyle(shopTrack)
+  const gap = Number.parseFloat(styles.columnGap || styles.gap || '0') || 0
+  const step = card ? card.getBoundingClientRect().width + gap : 0
+  shopTrack.style.transform = `translateX(-${shopIndex * step}px)`
+  if (shopPrev) shopPrev.disabled = shopIndex <= 0
+  if (shopNext) shopNext.disabled = shopIndex >= max
+}
+
+if (shopTrack) {
+  renderShopCards()
+  syncShopCarousel()
+  shopPrev?.addEventListener('click', () => {
+    shopIndex = Math.max(0, shopIndex - 1)
+    syncShopCarousel()
+  })
+  shopNext?.addEventListener('click', () => {
+    shopIndex = Math.min(shopMaxIndex(), shopIndex + 1)
+    syncShopCarousel()
+  })
+  window.matchMedia('(max-width: 780px)').addEventListener('change', () => {
+    shopIndex = 0
+    syncShopCarousel()
+  })
+  window.addEventListener('resize', syncShopCarousel, { passive: true })
+
+  let shopTouchStartX = 0
+  shopTrack.addEventListener(
+    'touchstart',
+    (event) => {
+      shopTouchStartX = event.changedTouches[0]?.clientX ?? 0
+    },
+    { passive: true },
+  )
+  shopTrack.addEventListener(
+    'touchend',
+    (event) => {
+      const endX = event.changedTouches[0]?.clientX ?? shopTouchStartX
+      const delta = endX - shopTouchStartX
+      if (Math.abs(delta) < 40) return
+      if (delta < 0) shopIndex = Math.min(shopMaxIndex(), shopIndex + 1)
+      else shopIndex = Math.max(0, shopIndex - 1)
+      syncShopCarousel()
+    },
+    { passive: true },
+  )
+}
