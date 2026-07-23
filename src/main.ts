@@ -656,7 +656,6 @@ document.querySelectorAll('.reveal').forEach((element) => observer.observe(eleme
 
 const suitSection = document.querySelector<HTMLElement>('.suit-up-section')
 const suitStage = document.querySelector<HTMLElement>('.suit-sticky')
-let syncGearsFromScroll = () => {}
 let suitWasTransforming = false
 
 const resetSuitProgress = () => {
@@ -671,7 +670,7 @@ const resetSuitProgress = () => {
 }
 
 const updateScroll = () => {
-  document.documentElement.style.setProperty('--scroll-turn', `${window.scrollY * 0.08}deg`)
+  document.documentElement.style.setProperty('--scroll-turn', `${window.scrollY * 0.12}deg`)
   document.querySelector('.site-header')?.classList.toggle('scrolled', window.scrollY > 40)
   if (suitSection && suitStage) {
     // Progress starts only after the sticky section has pinned — never while still above it.
@@ -696,7 +695,6 @@ const updateScroll = () => {
       suitStage.style.setProperty('--suit-width', `${(progress * 100).toFixed(2)}%`)
     }
   }
-  syncGearsFromScroll()
 }
 window.addEventListener('scroll', updateScroll, { passive: true })
 window.addEventListener('resize', updateScroll, { passive: true })
@@ -767,6 +765,7 @@ const placeLogoFx = () => {
   if (eyebrow && tagline && logoSection) {
     const logoRect = logo.getBoundingClientRect()
     const mobile = window.matchMedia('(max-width: 780px)').matches
+    const compactDesktop = window.matchMedia('(max-height: 1200px) and (min-width: 781px)').matches
     if (mobile && header) {
       const sectionTop = logoSection.getBoundingClientRect().top
       const headerBottom = header.getBoundingClientRect().bottom
@@ -774,11 +773,17 @@ const placeLogoFx = () => {
       const eyebrowHeight = eyebrow.offsetHeight || 24
       const topInSection = headerBottom - sectionTop + Math.max(10, (space - eyebrowHeight) / 2)
       eyebrow.style.top = `${Math.round(topInSection)}px`
+      const gap = Math.round(logoRect.top - eyebrow.getBoundingClientRect().bottom)
+      tagline.style.marginTop = `${Math.max(24, gap)}px`
+    } else if (compactDesktop) {
+      // CSS stacks eyebrow + logo + copy for short laptop/iPad viewports
+      eyebrow.style.top = ''
+      tagline.style.marginTop = ''
     } else {
       eyebrow.style.top = ''
+      const gap = Math.round(logoRect.top - eyebrow.getBoundingClientRect().bottom)
+      tagline.style.marginTop = `${Math.max(24, gap)}px`
     }
-    const gap = Math.round(logoRect.top - eyebrow.getBoundingClientRect().bottom)
-    tagline.style.marginTop = `${Math.max(24, gap)}px`
   }
 }
 
@@ -790,15 +795,10 @@ if (logoMain) {
 window.addEventListener('resize', placeLogoFx, { passive: true })
 
 const GEAR_FRAME_COUNT = 90
-/** Decorative gears still scrub with scroll. */
-const GEAR_PX_PER_FRAME = 40
 const gearSrc = (frame: number) => `/assets/gear3/${String(frame).padStart(4, '0')}.png`
 const logoGear = document.querySelector<HTMLImageElement>('.logo-gear')
-const scrollGearNodes = [...document.querySelectorAll<HTMLImageElement>('[data-gear-seq]')].filter(
-  (node) => node !== logoGear,
-)
-let lastScrollGearFrame = -1
 
+// Logo gear keeps the frame sequence; scroll gears use a single frame + CSS rotate.
 for (let i = 1; i <= GEAR_FRAME_COUNT; i += 1) {
   const preload = new Image()
   preload.src = gearSrc(i)
@@ -810,18 +810,6 @@ if (logoGear && !prefersReducedMotion) {
     logoGearFrame = logoGearFrame >= GEAR_FRAME_COUNT ? 1 : logoGearFrame + 1
     logoGear.src = gearSrc(logoGearFrame)
   }, 1000 / 20)
-}
-
-if (scrollGearNodes.length) {
-  syncGearsFromScroll = () => {
-    if (prefersReducedMotion) return
-    const frame = (Math.floor(window.scrollY / GEAR_PX_PER_FRAME) % GEAR_FRAME_COUNT) + 1
-    if (frame === lastScrollGearFrame) return
-    lastScrollGearFrame = frame
-    const src = gearSrc(frame)
-    for (const node of scrollGearNodes) node.src = src
-  }
-  syncGearsFromScroll()
 }
 
 const pipi = document.querySelector<HTMLElement>('.pipi-float')
